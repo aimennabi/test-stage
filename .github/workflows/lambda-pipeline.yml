@@ -26,8 +26,7 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction
       - name: Lint with Ruff
-        run: |
-          poetry run ruff check .
+        run: poetry run ruff check .
         continue-on-error: false
       - name: Run tests
         run: |
@@ -38,22 +37,14 @@ jobs:
 
       
       - name: Build Docker image
-        run: |
-          docker build -t lambda-app .
+        run: docker build -t lambda-app .
 
-
+      - name : tage Docker image
+        run: docker tag lambda-app localhost:5000/lambda-app
+        
       - name: Push Docker image
-        run: |
-          docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
-
-
-      - name: Run Docker container    
-        run: |
-          docker run -p 3001:8080 lambda-app
-      
-      - name: Stop Docker container
-        if: always()
-        run: docker stop $(docker ps -q --filter ancestor=lambda-app)
+        run: docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
+    
 
       - name: Create k3d cluster and deploy
         run: |
