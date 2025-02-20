@@ -68,6 +68,7 @@ Write a bash command to build the image from the `Dockerfile`.
 
 ```bash
 chmod +x build-docker.sh
+./build-docker.sh
 ```
 
 ## 🎯 Check the Local Invocation of the Application
@@ -105,8 +106,6 @@ docker tag ${DOCKER_IMAGE} localhost:${CLUSTER_REGISTRY_PORT}/${DOCKER_IMAGE} &&
 
 Write a small bash script to invoke the lambda function deployed in the cluster using `curl` with the event files from `events`.
 ```bash
-chmod +x build-docker.sh
-./build-docker.sh
 cd k8s
 chmod +x kub-cluster.sh
 ./kub-cluster.sh

@@ -45,6 +45,9 @@ curl -d @../events/event.json http://$SERVICE_IP:8080/2015-03-31/functions/funct
 # Vérifier la réponse (ajustez selon votre besoin)
 if grep -q '"statusCode": 200' response.json; then
   echo "Test passed"
+  k3d cluster delete lambda-cluster
+  docker rmi $(docker images -q) -f
+  exit 0
 else
   echo "Test failed"
   exit 1
