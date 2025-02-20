@@ -34,7 +34,27 @@ jobs:
           python -m pip install pytest pytest-cov
           poetry run pytest --cov-report term-missing --cov=lambda_app/ tests/
         continue-on-error: false
-
+      - name: check k3d cluster
+        run: |
+          if ! command -v k3d &> /dev/null
+          then
+            echo "k3d not found, installing..."
+            curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          else
+            echo "k3d is already installed"
+          fi
+      - name: check kubectl
+        run: |
+          if ! command -v kubectl &> /dev/null
+          then
+            echo "kubectl not found, installing..."
+            curl -sLO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+          else
+            echo "kubectl is already installed"
+          fi
+          
       - name: Create k3d cluster and deploy
         run: |
           k3d cluster create lambda-cluster --registry-create lambda-cluster:5000 -p 3001:8080@loadbalancer
@@ -47,15 +67,7 @@ jobs:
 
       - name: Push Docker image
         run: docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
-      - name: check k3d cluster
-        run: |
-          if ! command -v k3d &> /dev/null
-          then
-            echo "k3d not found, installing..."
-            curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-          else
-            echo "k3d is already installed"
-          fi
+      
       - name: deploy k3d cluster and 
         run: |
           k3d image import localhost:5000/lambda-app -c lambda-cluster
