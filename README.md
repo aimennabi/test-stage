@@ -67,7 +67,7 @@ Fill the `Dockerfile` to package your lambda function using the base image `publ
 Write a bash command to build the image from the `Dockerfile`.
 
 ```bash
-...
+chmod +x build-docker.sh
 ```
 
 ## 🎯 Check the Local Invocation of the Application
@@ -105,13 +105,68 @@ docker tag ${DOCKER_IMAGE} localhost:${CLUSTER_REGISTRY_PORT}/${DOCKER_IMAGE} &&
 
 Write a small bash script to invoke the lambda function deployed in the cluster using `curl` with the event files from `events`.
 ```bash
-...
+chmod +x build-docker.sh
+./build-docker.sh
+cd k8s
+chmod +x kub-cluster.sh
+./kub-cluster.sh
 ```
 
 ## 🎯 Automate Kubernetes Cluster and Application Deployment
 
 Propose a solution to automate the cluster provisioning locally and the deployment of the lambda application.
 
+
 ## 🎯 Monitor Your Application
 
 Propose a solution to monitor the deployed lambda application: logs and execution metrics. Include this as part of the automatic deployment.
+
+Log Tracking
+-
+Pod logs can be retrieved with:
+```
+kubectl logs -l app=lambda-app --tail=50 -f
+```
+
+or Prometheus & Grafana
+-
+
+- 1️⃣ ***Install Helm (if not already installed)***
+    -
+    ```
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    ```
+- 2️⃣ ***Add the official Prometheus repository***
+    -
+    Add the Prometheus repository in Helm:
+    ```
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+    ```
+-  3️⃣ ***Deploy Prometheus and Grafana on k3d***
+    -
+    ```
+    helm install monitoring prometheus-community/kube-prometheus-stack
+    ```
+- 4️⃣ Verify the installation
+    -
+    ```
+    kubectl get pods 
+    ```
+    If everything is installed correctly, you should see prometheus, grafana, and alertmanager pods running.
+
+- 5️⃣ Access Grafana
+    -
+    Once Grafana is installed, expose it to access it from your browser:
+    ```
+    kubectl port-forward svc/monitoring-grafana 3000:80
+    ```
+
+    
+    Then, open http://localhost:3000.
+
+            - Username: admin
+            - Password: kubectl get secrets monitoring-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+            
+            
+            

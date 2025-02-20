@@ -18,10 +18,18 @@ aws-sam-cli = "^1.119.0"
 [tool.poetry.group.test]
 optional = false
 
+[tool.poetry.scripts]
+lint = "ruff check ."
+test = "pytest --cov=lambda_app --cov-report=term-missing"
+
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2"
 pytest-cov = "^5.0"
 ruff = "^0.4"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [build-system]
 requires = ["poetry-core"]
@@ -36,3 +44,5 @@ ignore = ['FA', 'D']
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
+
+
