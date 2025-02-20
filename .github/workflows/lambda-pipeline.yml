@@ -44,29 +44,22 @@ jobs:
 
       - name: Push Docker image
         run: |
-          CLUSTER=lambda-cluster
-          CLUSTER_REGISTRY_PORT=5000
-          DOCKER_IMAGE=lambda-app
-          docker tag $DOCKER_IMAGE localhost:${CLUSTER_REGISTRY_PORT}/$DOCKER_IMAGE
-          docker push localhost:${CLUSTER_REGISTRY_PORT}/$DOCKER_IMAGE
+          docker tag lambda-app localhost:5000/lambda-app
+          docker push localhost:5000/lambda-app
 
 
       - name: Run Docker container    
         run: |
           docker run -p 3001:8080 lambda-app
+      
       - name: Stop Docker container
         if: always()
         run: docker stop $(docker ps -q --filter ancestor=lambda-app)
 
       - name: Create k3d cluster and deploy
         run: |
-          CLUSTER=lambda-cluster
-          CLUSTER_REGISTRY_PORT=5000
-          DOCKER_IMAGE=lambda-app
-          
-
-          k3d cluster create ${CLUSTER} --registry-create ${CLUSTER}:${CLUSTER_REGISTRY_PORT} -p 3001:8080@loadbalancer
-          k3d image import localhost:${CLUSTER_REGISTRY_PORT}/$DOCKER_IMAGE -c lambda-cluster
+          k3d cluster create lambda-cluster --registry-create lambda-cluster:5000 -p 3001:8080@loadbalancer
+          k3d image import localhost:5000/lambda-app -c lambda-cluster
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           
