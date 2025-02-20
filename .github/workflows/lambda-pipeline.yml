@@ -47,8 +47,15 @@ jobs:
 
       - name: Push Docker image
         run: docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
-    
-
+      - name: check k3d cluster
+        run: |
+          if ! command -v k3d &> /dev/null
+          then
+            echo "k3d not found, installing..."
+            curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          else
+            echo "k3d is already installed"
+          fi
       - name: deploy k3d cluster and 
         run: |
           k3d image import localhost:5000/lambda-app -c lambda-cluster
