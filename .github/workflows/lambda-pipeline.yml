@@ -35,20 +35,22 @@ jobs:
           poetry run pytest --cov-report term-missing --cov=lambda_app/ tests/
         continue-on-error: false
 
-      
+      - name: Create k3d cluster and deploy
+        run: |
+          k3d cluster create lambda-cluster --registry-create lambda-cluster:5000 -p 3001:8080@loadbalancer
+
       - name: Build Docker image
         run: docker build -t lambda-app .
 
       - name : tage Docker image
         run: docker tag lambda-app localhost:5000/lambda-app
-        
+
       - name: Push Docker image
         run: docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
     
 
-      - name: Create k3d cluster and deploy
+      - name: deploy k3d cluster and 
         run: |
-          k3d cluster create lambda-cluster --registry-create lambda-cluster:5000 -p 3001:8080@loadbalancer
           k3d image import localhost:5000/lambda-app -c lambda-cluster
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
