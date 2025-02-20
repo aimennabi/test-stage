@@ -44,8 +44,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker tag lambda-app localhost:5000/lambda-app
-          docker push localhost:5000/lambda-app
+          docker tag lambda-app localhost:5000/lambda-app && docker push localhost:5000/lambda-app
 
 
       - name: Run Docker container    
